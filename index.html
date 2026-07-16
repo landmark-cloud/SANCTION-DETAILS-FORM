@@ -819,10 +819,58 @@
   }
 
   window.downloadSummary = function(){
-    let text = `BUILDING PERMIT APPLICATION\nFile No: ${fileNo}\n\n`;
-    Object.keys(data).forEach(k=>{
-      if(data[k]) text += `${k}: ${data[k]}\n`;
+    const line = (label, val) => `${label.padEnd(28,' ')}: ${val && val !== '' ? val : '—'}\n`;
+    const divider = '─'.repeat(48) + '\n';
+
+    let text = '';
+    text += 'BUILDING PERMIT APPLICATION\n';
+    text += divider;
+    text += line('File No', fileNo);
+    text += '\n';
+
+    text += 'OWNER 1\n' + divider;
+    text += line('Name', data.o1_name);
+    text += line('Address', data.o1_address);
+    text += line('Door / house no.', data.o1_door);
+    text += line('Ward', data.o1_ward);
+    text += line('Zonal office', data.o1_zonal);
+    text += line('Aadhaar', data.o1_aadhaar);
+    text += line('Phone', data.o1_phone);
+    text += line('Email', data.o1_email);
+    text += '\n';
+
+    if(document.getElementById('owner2-check').checked){
+      text += 'OWNER 2\n' + divider;
+      text += line('Name', data.o2_name);
+      text += line('Address', data.o2_address);
+      text += line('Door / house no.', data.o2_door);
+      text += line('Ward', data.o2_ward);
+      text += line('Zonal office', data.o2_zonal);
+      text += line('Aadhaar', data.o2_aadhaar);
+      text += line('Phone', data.o2_phone);
+      text += line('Email', data.o2_email);
+      text += '\n';
+    }
+
+    text += 'PLOT DETAILS\n' + divider;
+    text += line('Ward name', data.p_wardname);
+    text += line('Ward number', data.p_wardnum);
+    text += line('Electric post no.', data.p_postnum);
+    text += line('Nearest building no.', data.p_buildingnum);
+    text += line('Nearest road name', data.p_roadname);
+    text += line('Nearest road details', data.p_roaddetails);
+    text += line('Sale deed', data.p_deed);
+    text += line('Possession certificate', data.p_possession);
+    text += line('Tax receipt', data.p_tax);
+    text += '\n';
+
+    text += 'ADJACENT PLOT DETAILS\n' + divider;
+    sides.forEach(side=>{
+      const key = side.toLowerCase();
+      const summary = [data[key+'_type'], data[key+'_access'], data[key+'_roadtype']].filter(Boolean).join(' · ');
+      text += line(side + ' side', summary);
     });
+
     const blob = new Blob([text], {type:'text/plain'});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
