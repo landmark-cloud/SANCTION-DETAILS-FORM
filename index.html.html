@@ -1,0 +1,810 @@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg:#FAF7F1;
+    --surface:#FFFFFF;
+    --ink:#262622;
+    --ink-soft:#5B584F;
+    --primary:#1B4D3E;
+    --primary-light:#2F6B57;
+    --accent:#C08A28;
+    --muted:#EDEAE0;
+    --border:#DAD4C4;
+    --error:#B23A2E;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.01ms !important; transition-duration:0.01ms !important;}
+  }
+
+  .permit-app{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    max-width:760px;
+    margin:0 auto;
+    padding:28px 20px 60px;
+    line-height:1.5;
+  }
+
+  .file-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    border-bottom:2px solid var(--primary);
+    padding-bottom:16px;
+    margin-bottom:22px;
+    gap:16px;
+  }
+  .file-header h1{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:26px;
+    letter-spacing:-0.01em;
+    margin:0 0 4px;
+    color:var(--primary);
+  }
+  .file-header p{
+    margin:0;
+    font-size:13px;
+    color:var(--ink-soft);
+  }
+  .file-no{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    color:var(--ink-soft);
+    text-align:right;
+    white-space:nowrap;
+    letter-spacing:0.02em;
+  }
+  .file-no strong{
+    display:block;
+    color:var(--primary);
+    font-size:13px;
+  }
+
+  /* Folder tabs */
+  .tabs{
+    display:flex;
+    gap:6px;
+    margin-bottom:0;
+  }
+  .tab{
+    flex:1;
+    text-align:center;
+    padding:10px 6px;
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:0.02em;
+    color:var(--ink-soft);
+    background:var(--muted);
+    border:1px solid var(--border);
+    border-bottom:none;
+    border-radius:8px 8px 0 0;
+    position:relative;
+    cursor:default;
+    transition:background 0.2s, color 0.2s;
+  }
+  .tab.active{
+    background:var(--surface);
+    color:var(--primary);
+  }
+  .tab.done{
+    color:var(--primary);
+  }
+  .tab .stamp{
+    display:inline-block;
+    width:14px;height:14px;
+    border-radius:50%;
+    border:1.5px solid currentColor;
+    margin-right:5px;
+    vertical-align:-2px;
+    position:relative;
+  }
+  .tab.done .stamp{
+    background:var(--accent);
+    border-color:var(--accent);
+  }
+  .tab.done .stamp::after{
+    content:'';
+    position:absolute;
+    left:3px; top:0.5px;
+    width:4px; height:7px;
+    border:solid white;
+    border-width:0 1.5px 1.5px 0;
+    transform:rotate(40deg);
+  }
+
+  .card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:0 0 var(--radius) var(--radius);
+    padding:26px 24px;
+  }
+
+  .section-title{
+    font-family:'Fraunces', serif;
+    font-size:20px;
+    font-weight:600;
+    color:var(--primary);
+    margin:0 0 4px;
+  }
+  .section-sub{
+    font-size:13px;
+    color:var(--ink-soft);
+    margin:0 0 20px;
+  }
+
+  .field{
+    margin-bottom:18px;
+  }
+  .field label{
+    display:block;
+    font-size:13.5px;
+    font-weight:600;
+    margin-bottom:6px;
+    color:var(--ink);
+  }
+  .field label .req{
+    color:var(--error);
+    margin-left:2px;
+  }
+  .field .hint{
+    font-size:12px;
+    color:var(--ink-soft);
+    margin:4px 0 0;
+  }
+  .field input[type="text"],
+  .field input[type="tel"],
+  .field input[type="email"],
+  .field input[type="number"],
+  .field select{
+    width:100%;
+    padding:10px 12px;
+    font-size:14px;
+    font-family:inherit;
+    border:1px solid var(--border);
+    border-radius:8px;
+    background:var(--bg);
+    color:var(--ink);
+    transition:border-color 0.15s, box-shadow 0.15s;
+  }
+  .field input:focus, .field select:focus{
+    outline:none;
+    border-color:var(--primary);
+    box-shadow:0 0 0 3px rgba(27,77,62,0.12);
+  }
+  .field input.invalid{
+    border-color:var(--error);
+  }
+  .field .error-msg{
+    font-size:12px;
+    color:var(--error);
+    margin:4px 0 0;
+    display:none;
+  }
+  .field.has-error .error-msg{ display:block; }
+
+  .file-upload{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .file-upload label.btn{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:9px 14px;
+    border:1px solid var(--primary);
+    color:var(--primary);
+    border-radius:8px;
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+    background:var(--surface);
+  }
+  .file-upload label.btn:hover{ background:var(--muted); }
+  .file-upload input[type=file]{ display:none; }
+  .file-name{
+    font-size:12.5px;
+    color:var(--ink-soft);
+    font-family:'IBM Plex Mono', monospace;
+  }
+
+  .owner2-toggle{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background:var(--muted);
+    border-radius:8px;
+    padding:12px 14px;
+    margin-bottom:20px;
+    font-size:13.5px;
+    font-weight:500;
+  }
+  .owner2-toggle input{ width:16px; height:16px; accent-color:var(--primary); }
+
+  #owner2-fields{ display:none; }
+  #owner2-fields.show{ display:block; }
+
+  .side-block{
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:16px;
+    margin-bottom:16px;
+    background:var(--bg);
+  }
+  .side-block h3{
+    font-family:'Fraunces', serif;
+    font-size:15px;
+    margin:0 0 12px;
+    color:var(--primary);
+  }
+  .side-row{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+  }
+  @media(max-width:520px){ .side-row{ grid-template-columns:1fr; } }
+  .radio-group{ display:flex; gap:14px; margin-top:2px; }
+  .radio-group label{
+    display:flex; align-items:center; gap:6px;
+    font-size:13.5px; font-weight:500; color:var(--ink);
+    cursor:pointer;
+  }
+  .radio-group input{ accent-color:var(--primary); }
+
+  .nav-row{
+    display:flex;
+    justify-content:space-between;
+    margin-top:24px;
+  }
+  .btn-primary, .btn-secondary{
+    padding:11px 22px;
+    border-radius:8px;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+    border:none;
+    font-family:inherit;
+  }
+  .btn-primary{
+    background:var(--primary);
+    color:#fff;
+  }
+  .btn-primary:hover{ background:var(--primary-light); }
+  .btn-secondary{
+    background:transparent;
+    color:var(--ink-soft);
+    border:1px solid var(--border);
+  }
+  .btn-secondary:hover{ background:var(--muted); }
+  .btn-primary:focus-visible, .btn-secondary:focus-visible,
+  .field input:focus-visible, .field select:focus-visible{
+    outline:2px solid var(--accent);
+    outline-offset:2px;
+  }
+
+  /* Review screen */
+  .review-group{ margin-bottom:18px; }
+  .review-group h3{
+    font-family:'Fraunces', serif;
+    font-size:15px;
+    color:var(--primary);
+    border-bottom:1px solid var(--border);
+    padding-bottom:6px;
+    margin-bottom:10px;
+  }
+  .review-row{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    font-size:13px;
+    padding:4px 0;
+    border-bottom:1px dashed var(--border);
+  }
+  .review-row span:first-child{ color:var(--ink-soft); }
+  .review-row span:last-child{ font-weight:500; text-align:right; }
+
+  .seal-final{
+    text-align:center;
+    padding:20px 0 6px;
+  }
+  .seal-final .ring{
+    width:74px;height:74px;
+    border:3px solid var(--accent);
+    border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    margin:0 auto 12px;
+    color:var(--accent);
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:12px;
+    text-align:center;
+    line-height:1.2;
+  }
+
+  .note-box{
+    background:var(--muted);
+    border-left:3px solid var(--accent);
+    padding:10px 14px;
+    font-size:12.5px;
+    color:var(--ink-soft);
+    border-radius:6px;
+    margin-top:18px;
+  }
+</style>
+
+<div class="permit-app">
+  <div class="file-header">
+    <div>
+      <h1>Building Permit Application</h1>
+      <p>Details required for sanction from Panchayat / Municipality / Corporation</p>
+    </div>
+    <div class="file-no">
+      FILE NO
+      <strong id="file-no-val">—</strong>
+    </div>
+  </div>
+
+  <div class="tabs" id="tabs"></div>
+
+  <div class="card">
+    <!-- STEP 1: Owner 1 -->
+    <div class="step" data-step="0">
+      <div class="section-title">Owner details</div>
+      <p class="section-sub">Details of the primary applicant / owner. If there is more than one owner, you can add a second owner on the next step.</p>
+
+      <div class="field">
+        <label>Full name<span class="req">*</span></label>
+        <input type="text" data-field="o1_name" placeholder="As per ID proof">
+        <p class="error-msg">Please enter the owner's name.</p>
+      </div>
+      <div class="field">
+        <label>Address<span class="req">*</span></label>
+        <input type="text" data-field="o1_address" placeholder="House, street, locality">
+        <p class="error-msg">Please enter an address.</p>
+      </div>
+      <div class="field">
+        <label>Door no. / house no.<span class="req">*</span></label>
+        <input type="text" data-field="o1_door" placeholder="e.g. TC 24/1234">
+        <p class="error-msg">Please enter the door / house number.</p>
+      </div>
+      <div class="field">
+        <label>Ward name &amp; number (current residence)<span class="req">*</span></label>
+        <input type="text" data-field="o1_ward" placeholder="e.g. Ward 14 - Kadavanthra">
+        <p class="hint">The ward of your current residential address, not the plot's ward.</p>
+        <p class="error-msg">Please enter your current ward name and number.</p>
+      </div>
+      <div class="field">
+        <label>Zonal office<span class="req">*</span></label>
+        <input type="text" data-field="o1_zonal" placeholder="e.g. Zone III">
+        <p class="error-msg">Please enter the zonal office.</p>
+      </div>
+      <div class="field">
+        <label>Aadhaar number<span class="req">*</span></label>
+        <input type="text" inputmode="numeric" maxlength="12" data-field="o1_aadhaar" placeholder="12-digit number, no spaces" data-validate="aadhaar">
+        <p class="hint">Enter all 12 digits with no spaces, e.g. 123456789012</p>
+        <p class="error-msg">Aadhaar number must be exactly 12 digits.</p>
+      </div>
+      <div class="field">
+        <label>Phone number<span class="req">*</span></label>
+        <input type="tel" inputmode="numeric" maxlength="10" data-field="o1_phone" placeholder="10-digit mobile number" data-validate="phone">
+        <p class="error-msg">Phone number must be exactly 10 digits.</p>
+      </div>
+      <div class="field">
+        <label>Email<span class="req">*</span></label>
+        <input type="email" data-field="o1_email" placeholder="name@example.com" data-validate="email">
+        <p class="error-msg">Please enter a valid email address.</p>
+      </div>
+
+      <div class="nav-row">
+        <span></span>
+        <button class="btn-primary" onclick="goStep(1)">Continue</button>
+      </div>
+    </div>
+
+    <!-- STEP 2: Owner 2 -->
+    <div class="step" data-step="1" style="display:none;">
+      <div class="section-title">Second owner (if applicable)</div>
+      <p class="section-sub">Only needed if the plot has more than one registered owner.</p>
+
+      <div class="owner2-toggle">
+        <input type="checkbox" id="owner2-check" onchange="toggleOwner2()">
+        <label for="owner2-check">This plot has a second owner — add their details</label>
+      </div>
+
+      <div id="owner2-fields">
+        <div class="field">
+          <label>Full name</label>
+          <input type="text" data-field="o2_name">
+        </div>
+        <div class="field">
+          <label>Address</label>
+          <input type="text" data-field="o2_address">
+        </div>
+        <div class="field">
+          <label>Door no. / house no.</label>
+          <input type="text" data-field="o2_door">
+        </div>
+        <div class="field">
+          <label>Ward name &amp; number (current residence)</label>
+          <input type="text" data-field="o2_ward">
+        </div>
+        <div class="field">
+          <label>Zonal office</label>
+          <input type="text" data-field="o2_zonal">
+        </div>
+        <div class="field">
+          <label>Aadhaar number</label>
+          <input type="text" inputmode="numeric" maxlength="12" data-field="o2_aadhaar" placeholder="12-digit number, no spaces" data-validate="aadhaar-optional">
+          <p class="error-msg">Aadhaar number must be exactly 12 digits.</p>
+        </div>
+        <div class="field">
+          <label>Phone number</label>
+          <input type="tel" inputmode="numeric" maxlength="10" data-field="o2_phone" data-validate="phone-optional">
+          <p class="error-msg">Phone number must be exactly 10 digits.</p>
+        </div>
+        <div class="field">
+          <label>Email</label>
+          <input type="email" data-field="o2_email" data-validate="email-optional">
+          <p class="error-msg">Please enter a valid email address.</p>
+        </div>
+      </div>
+
+      <div class="nav-row">
+        <button class="btn-secondary" onclick="goStep(0)">Back</button>
+        <button class="btn-primary" onclick="goStep(2)">Continue</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: Plot details -->
+    <div class="step" data-step="2" style="display:none;">
+      <div class="section-title">Plot details</div>
+      <p class="section-sub">Location details of the plot the permit is being applied for.</p>
+
+      <div class="field">
+        <label>Ward name<span class="req">*</span></label>
+        <input type="text" data-field="p_wardname">
+        <p class="error-msg">Please enter the plot's ward name.</p>
+      </div>
+      <div class="field">
+        <label>Ward number<span class="req">*</span></label>
+        <input type="text" data-field="p_wardnum">
+        <p class="error-msg">Please enter the plot's ward number.</p>
+      </div>
+      <div class="field">
+        <label>Electric post number</label>
+        <input type="text" data-field="p_postnum">
+        <p class="hint">The number printed on the nearest electricity pole — helps officials locate the plot.</p>
+      </div>
+      <div class="field">
+        <label>Nearest building number</label>
+        <input type="text" data-field="p_buildingnum">
+        <p class="hint">Door number of the closest existing building, if known.</p>
+      </div>
+      <div class="field">
+        <label>Nearest road name</label>
+        <input type="text" data-field="p_roadname">
+      </div>
+      <div class="field">
+        <label>Nearest road details</label>
+        <input type="text" data-field="p_roaddetails">
+        <p class="hint">Width, surface type, or any identifying detail of the road.</p>
+      </div>
+
+      <div class="field">
+        <label>Sale deed<span class="req">*</span></label>
+        <div class="file-upload">
+          <label class="btn">Choose file<input type="file" data-field="p_deed" onchange="handleFile(this)"></label>
+          <span class="file-name" data-filename-for="p_deed">No file selected</span>
+        </div>
+        <p class="error-msg">Please attach the sale deed.</p>
+      </div>
+      <div class="field">
+        <label>Possession certificate</label>
+        <div class="file-upload">
+          <label class="btn">Choose file<input type="file" data-field="p_possession" onchange="handleFile(this)"></label>
+          <span class="file-name" data-filename-for="p_possession">No file selected</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Latest tax receipt<span class="req">*</span></label>
+        <div class="file-upload">
+          <label class="btn">Choose file<input type="file" data-field="p_tax" onchange="handleFile(this)"></label>
+          <span class="file-name" data-filename-for="p_tax">No file selected</span>
+        </div>
+        <p class="error-msg">Please attach the latest tax receipt.</p>
+      </div>
+
+      <div class="nav-row">
+        <button class="btn-secondary" onclick="goStep(1)">Back</button>
+        <button class="btn-primary" onclick="goStep(3)">Continue</button>
+      </div>
+    </div>
+
+    <!-- STEP 4: Adjacent plot details -->
+    <div class="step" data-step="3" style="display:none;">
+      <div class="section-title">Adjacent plot details</div>
+      <p class="section-sub">For each side, tell us what borders the plot.</p>
+
+      <div id="sides-container"></div>
+
+      <div class="nav-row">
+        <button class="btn-secondary" onclick="goStep(2)">Back</button>
+        <button class="btn-primary" onclick="goStep(4)">Review application</button>
+      </div>
+    </div>
+
+    <!-- STEP 5: Review -->
+    <div class="step" data-step="4" style="display:none;">
+      <div class="section-title">Review before submitting</div>
+      <p class="section-sub">Please check the details below. You can go back to any section to make changes.</p>
+      <div id="review-content"></div>
+
+      <div class="nav-row">
+        <button class="btn-secondary" onclick="goStep(3)">Back</button>
+        <button class="btn-primary" onclick="submitForm()">Submit application</button>
+      </div>
+    </div>
+
+    <!-- STEP 6: Done -->
+    <div class="step" data-step="5" style="display:none;">
+      <div class="seal-final">
+        <div class="ring">FILED</div>
+      </div>
+      <div class="section-title" style="text-align:center;">Application recorded</div>
+      <p class="section-sub" style="text-align:center;">Reference <strong id="done-file-no"></strong> — keep this for your records.</p>
+      <div style="text-align:center; margin-top:16px;">
+        <button class="btn-primary" onclick="downloadSummary()">Download summary (.txt)</button>
+      </div>
+      <div class="note-box">
+        This prototype compiles your answers into a downloadable file so you can see the flow end to end. To actually collect submissions from clients, this form would need to be connected to a place to store responses — for example a spreadsheet or database — which I can help wire up next.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const stepNames = ["Owner 1","Owner 2","Plot","Adjacent","Review","Done"];
+  const tabsEl = document.getElementById('tabs');
+  let current = 0;
+  const data = {};
+
+  // build tabs (first 4 map to sections, review/done not shown as tabs)
+  function renderTabs(){
+    tabsEl.innerHTML = '';
+    for(let i=0;i<4;i++){
+      const t = document.createElement('div');
+      t.className = 'tab' + (i===current?' active':'') + (i<current?' done':'');
+      t.innerHTML = '<span class="stamp"></span>' + stepNames[i];
+      tabsEl.appendChild(t);
+    }
+  }
+
+  function genFileNo(){
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,'0');
+    const day = String(d.getDate()).padStart(2,'0');
+    const rand = Math.floor(1000 + Math.random()*9000);
+    return `PMT-${y}${m}${day}-${rand}`;
+  }
+  const fileNo = genFileNo();
+  document.getElementById('file-no-val').textContent = fileNo;
+
+  window.toggleOwner2 = function(){
+    const checked = document.getElementById('owner2-check').checked;
+    document.getElementById('owner2-fields').classList.toggle('show', checked);
+  };
+
+  window.handleFile = function(input){
+    const field = input.getAttribute('data-field');
+    const span = document.querySelector(`[data-filename-for="${field}"]`);
+    if(input.files && input.files[0]){
+      span.textContent = input.files[0].name;
+      data[field] = input.files[0].name;
+    } else {
+      span.textContent = 'No file selected';
+      data[field] = '';
+    }
+  };
+
+  function validators(){
+    return {
+      aadhaar: v => /^\d{12}$/.test(v),
+      'aadhaar-optional': v => v==='' || /^\d{12}$/.test(v),
+      phone: v => /^\d{10}$/.test(v),
+      'phone-optional': v => v==='' || /^\d{10}$/.test(v),
+      email: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v),
+      'email-optional': v => v==='' || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v),
+    };
+  }
+
+  function validateStep(stepIndex){
+    const stepEl = document.querySelector(`.step[data-step="${stepIndex}"]`);
+    let ok = true;
+    stepEl.querySelectorAll('input[data-field]').forEach(input=>{
+      const field = input.closest('.field');
+      if(!field) return;
+      const isFile = input.type === 'file';
+      const required = input.hasAttribute('data-field') && field.querySelector('.req');
+      const val = isFile ? (data[input.getAttribute('data-field')] || '') : input.value.trim();
+
+      let valid = true;
+      const rule = input.getAttribute('data-validate');
+      if(rule){
+        valid = validators()[rule](val);
+      }
+      if(required && val === '') valid = false;
+
+      if(!valid){
+        field.classList.add('has-error');
+        if(!isFile) input.classList.add('invalid');
+        ok = false;
+      } else {
+        field.classList.remove('has-error');
+        if(!isFile) input.classList.remove('invalid');
+      }
+    });
+    return ok;
+  }
+
+  function collectStep(stepIndex){
+    const stepEl = document.querySelector(`.step[data-step="${stepIndex}"]`);
+    stepEl.querySelectorAll('input[data-field]').forEach(input=>{
+      if(input.type === 'file') return; // handled in handleFile
+      if(input.type === 'radio'){
+        if(input.checked) data[input.getAttribute('data-field')] = input.value;
+      } else {
+        data[input.getAttribute('data-field')] = input.value.trim();
+      }
+    });
+  }
+
+  // Build adjacent-plot sides
+  const sides = ['North','South','East','West'];
+  const sidesContainer = document.getElementById('sides-container');
+  sides.forEach(side=>{
+    const key = side.toLowerCase();
+    const block = document.createElement('div');
+    block.className = 'side-block';
+    block.innerHTML = `
+      <h3>${side} side</h3>
+      <div class="side-row">
+        <div class="field" style="margin-bottom:0;">
+          <label>Plot type</label>
+          <select data-field="${key}_type">
+            <option value="">Select</option>
+            <option>Residential</option>
+            <option>Agricultural</option>
+            <option>Commercial</option>
+            <option>Government property</option>
+            <option>Vacant land</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label>Road access?</label>
+          <div class="radio-group">
+            <label><input type="radio" name="${key}_access" data-field="${key}_access" value="Yes" onchange="toggleRoadType('${key}')"> Yes</label>
+            <label><input type="radio" name="${key}_access" data-field="${key}_access" value="No" onchange="toggleRoadType('${key}')"> No</label>
+          </div>
+        </div>
+      </div>
+      <div class="field" id="${key}_roadtype_field" style="margin-top:14px; margin-bottom:0; display:none;">
+        <label>Type of road access</label>
+        <select data-field="${key}_roadtype">
+          <option value="">Select</option>
+          <option>PWD</option>
+          <option>Panchayat</option>
+          <option>Municipal / Corporation</option>
+          <option>Private road</option>
+          <option>No vehicular access</option>
+        </select>
+      </div>
+    `;
+    sidesContainer.appendChild(block);
+  });
+
+  window.toggleRoadType = function(key){
+    const yesChecked = document.querySelector(`input[name="${key}_access"][value="Yes"]`).checked;
+    document.getElementById(`${key}_roadtype_field`).style.display = yesChecked ? 'block' : 'none';
+  };
+
+  window.goStep = function(n){
+    if(n > current){
+      if(!validateStep(current)) return;
+    }
+    collectStep(current);
+    document.querySelector(`.step[data-step="${current}"]`).style.display = 'none';
+    current = n;
+    document.querySelector(`.step[data-step="${current}"]`).style.display = 'block';
+    if(current < 4) renderTabs();
+    if(current === 4) buildReview();
+    document.querySelector('.permit-app').scrollIntoView({behavior:'smooth', block:'start'});
+  };
+
+  function rv(label, val){
+    return `<div class="review-row"><span>${label}</span><span>${val && val !== '' ? val : '—'}</span></div>`;
+  }
+
+  function buildReview(){
+    collectStep(3);
+    const el = document.getElementById('review-content');
+    el.innerHTML = `
+      <div class="review-group">
+        <h3>Owner 1</h3>
+        ${rv('Name', data.o1_name)}
+        ${rv('Address', data.o1_address)}
+        ${rv('Door / house no.', data.o1_door)}
+        ${rv('Ward', data.o1_ward)}
+        ${rv('Zonal office', data.o1_zonal)}
+        ${rv('Aadhaar', data.o1_aadhaar)}
+        ${rv('Phone', data.o1_phone)}
+        ${rv('Email', data.o1_email)}
+      </div>
+      ${document.getElementById('owner2-check').checked ? `
+      <div class="review-group">
+        <h3>Owner 2</h3>
+        ${rv('Name', data.o2_name)}
+        ${rv('Address', data.o2_address)}
+        ${rv('Door / house no.', data.o2_door)}
+        ${rv('Ward', data.o2_ward)}
+        ${rv('Zonal office', data.o2_zonal)}
+        ${rv('Aadhaar', data.o2_aadhaar)}
+        ${rv('Phone', data.o2_phone)}
+        ${rv('Email', data.o2_email)}
+      </div>` : ''}
+      <div class="review-group">
+        <h3>Plot details</h3>
+        ${rv('Ward name', data.p_wardname)}
+        ${rv('Ward number', data.p_wardnum)}
+        ${rv('Electric post no.', data.p_postnum)}
+        ${rv('Nearest building no.', data.p_buildingnum)}
+        ${rv('Nearest road name', data.p_roadname)}
+        ${rv('Nearest road details', data.p_roaddetails)}
+        ${rv('Sale deed', data.p_deed)}
+        ${rv('Possession certificate', data.p_possession)}
+        ${rv('Tax receipt', data.p_tax)}
+      </div>
+      <div class="review-group">
+        <h3>Adjacent plot details</h3>
+        ${sides.map(side=>{
+          const key = side.toLowerCase();
+          return rv(side + ' side', [data[key+'_type'], data[key+'_access'], data[key+'_roadtype']].filter(Boolean).join(' · '));
+        }).join('')}
+      </div>
+    `;
+  }
+
+  window.submitForm = function(){
+    document.querySelector('.step[data-step="4"]').style.display = 'none';
+    current = 5;
+    document.querySelector('.step[data-step="5"]').style.display = 'block';
+    document.getElementById('done-file-no').textContent = fileNo;
+    document.querySelector('.permit-app').scrollIntoView({behavior:'smooth', block:'start'});
+  };
+
+  window.downloadSummary = function(){
+    let text = `BUILDING PERMIT APPLICATION\nFile No: ${fileNo}\n\n`;
+    Object.keys(data).forEach(k=>{
+      if(data[k]) text += `${k}: ${data[k]}\n`;
+    });
+    const blob = new Blob([text], {type:'text/plain'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${fileNo}-summary.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  renderTabs();
+})();
+</script>
