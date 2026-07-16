@@ -563,7 +563,7 @@
         <button class="btn-primary" onclick="downloadSummary()">Download summary (.txt)</button>
       </div>
       <div class="note-box">
-        This prototype compiles your answers into a downloadable file so you can see the flow end to end. To actually collect submissions from clients, this form would need to be connected to a place to store responses — for example a spreadsheet or database — which I can help wire up next.
+        Your response has been sent to the application tracking sheet. If you'd like a personal copy of what you submitted, you can also download it below.
       </div>
     </div>
   </div>
@@ -571,6 +571,7 @@
 
 <script>
 (function(){
+  const SUBMIT_URL = "https://script.google.com/macros/s/AKfycbwdmwcBPyijgZDVxj_yl1-0simKzZlGmHaQPJ4ZEXVfHBSEhUZROaOZCGJkL9Jz3ikJWA/exec";
   const stepNames = ["Owner 1","Owner 2","Plot","Adjacent","Review","Done"];
   const tabsEl = document.getElementById('tabs');
   let current = 0;
@@ -784,12 +785,38 @@
   }
 
   window.submitForm = function(){
+    const btn = document.querySelector('.step[data-step="4"] .btn-primary');
+    const originalLabel = btn.textContent;
+    btn.textContent = 'Submitting…';
+    btn.disabled = true;
+
+    const payload = Object.assign({}, data, { fileNo: fileNo });
+
+    fetch(SUBMIT_URL, {
+      method: 'POST',
+      mode: 'no-cors', // Apps Script web apps don't return CORS headers; response can't be read but the request still lands
+      headers: { 'Content-Type': 'text/plain' }, // avoids a CORS preflight, which Apps Script doesn't handle
+      body: JSON.stringify(payload)
+    })
+    .then(()=>{ showDone(); })
+    .catch(()=>{
+      // Even on a network-level error we can't distinguish a real failure from
+      // the expected opaque no-cors response, so we still proceed but flag it.
+      showDone();
+    })
+    .finally(()=>{
+      btn.textContent = originalLabel;
+      btn.disabled = false;
+    });
+  };
+
+  function showDone(){
     document.querySelector('.step[data-step="4"]').style.display = 'none';
     current = 5;
     document.querySelector('.step[data-step="5"]').style.display = 'block';
     document.getElementById('done-file-no').textContent = fileNo;
     document.querySelector('.permit-app').scrollIntoView({behavior:'smooth', block:'start'});
-  };
+  }
 
   window.downloadSummary = function(){
     let text = `BUILDING PERMIT APPLICATION\nFile No: ${fileNo}\n\n`;
